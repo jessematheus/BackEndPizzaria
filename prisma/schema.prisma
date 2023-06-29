@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//Criar uma migration: yarn prisma migrate dev
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  email      String
+  password   String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("users")
+}
+
+model Category {
+  id         String    @id @default(uuid())
+  name       String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  products   Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  price       String
+  description String
+  banner      String
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @default(now())
+
+  category    Category @relation(fields: [category_id], references: [id])
+  category_id String
+  items       Item[]
+
+  @@map("products")
+}
+
+model Order {
+  id         String    @id @default(uuid())
+  table      Int
+  status     Boolean   @default(false) //para sempre iniciar o status como falso, e só ser alterado quando a Order for concluida.
+  draft      Boolean   @default(true) //para sempre iniciar a Order como Draft"Rascunho" e só trocar quando ela for concluida .
+  name       String?
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  items      Item[]
+
+  @@map("orders")
+}
+
+model Item {
+  id         String    @id @default(uuid())
+  amount     Int
+  cradted_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  order      Order   @relation(fields: [order_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+  order_id   String
+  product_id String
+
+  @@map("items")
+}
